@@ -233,3 +233,308 @@ Sparse Matrix (row, col, value):
 * Then each row = `row col value`
 
 ---
+
+
+
+---
+
+### 🔹 C++ Code (Infix → Postfix Conversion)
+
+```cpp
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+// Check if character is operand (a-z)
+bool isOperand(char c) {
+    return (c >= 'a' && c <= 'z');
+}
+
+// Get precedence of operators
+int getPrecedence(char op) {
+    if (op == '+' || op == '-') return 1;   // lowest precedence
+    if (op == '*' || op == '/') return 2;   // medium precedence
+    if (op == '^') return 3;                // highest precedence
+    return -1; // Not an operator
+}
+
+// Convert infix expression to postfix
+void convertToPostfix(string infix) {
+    stack<char> st;
+
+    for (char c : infix) {
+        // If operand → print directly
+        if (isOperand(c)) {
+            cout << c;
+        }
+        // If '(' → push to stack
+        else if (c == '(') {
+            st.push(c);
+        }
+        // If ')' → pop until '('
+        else if (c == ')') {
+            while (!st.empty() && st.top() != '(') {
+                cout << st.top();
+                st.pop();
+            }
+            if (!st.empty()) st.pop(); // remove '('
+        }
+        // If operator → pop higher/equal precedence operators first
+        else {
+            while (!st.empty() && getPrecedence(st.top()) >= getPrecedence(c)) {
+                cout << st.top();
+                st.pop();
+            }
+            st.push(c);
+        }
+    }
+
+    // Pop remaining operators
+    while (!st.empty()) {
+        cout << st.top();
+        st.pop();
+    }
+}
+
+int main() {
+    string infix;
+    cout << "Enter the infix expression: ";
+    cin >> infix;
+
+    cout << "Postfix expression: ";
+    convertToPostfix(infix);
+    cout << endl;
+
+    return 0;
+}
+```
+
+---
+
+### 🔹 Example Run
+
+**Input:**
+
+```
+a+b*c
+```
+
+**Output:**
+
+```
+Postfix expression: abc*+
+```
+
+---
+
+✅ **Logic Summary**:
+
+1. Operands (`a-z`) → directly output.
+2. `(` → push to stack.
+3. `)` → pop operators until matching `(`.
+4. Operators (`+ - * / ^`) → pop from stack while precedence of top ≥ current operator, then push current operator.
+5. At end, pop remaining operators.
+
+---
+
+
+
+1. Builds a **Binary Search Tree (BST)** with user input.
+2. Implements **insertion** and **deletion** (covering all three cases).
+3. Displays the tree in **Preorder, Inorder, and Postorder traversals**.
+4. Lets user see execution of **all deletion cases (leaf, single child, two children)**.
+
+---
+
+### 🔹 C++ Program: BST with Insert + Delete + Traversals
+
+```cpp
+#include <iostream>
+using namespace std;
+
+// Structure of a node
+struct Node {
+    int info;
+    Node* left;
+    Node* right;
+};
+
+// Create new node
+Node* createNode(int data) {
+    Node* newNode = new Node();
+    newNode->info = data;
+    newNode->left = newNode->right = nullptr;
+    return newNode;
+}
+
+// Insert a node in BST
+Node* insert(Node* node, int data) {
+    if (node == nullptr) {
+        return createNode(data);
+    }
+    if (data < node->info) {
+        node->left = insert(node->left, data);
+    } else if (data > node->info) {
+        node->right = insert(node->right, data);
+    }
+    return node;
+}
+
+// Inorder traversal (LNR)
+void inorder(Node* root) {
+    if (root == nullptr) return;
+    inorder(root->left);
+    cout << root->info << " ";
+    inorder(root->right);
+}
+
+// Preorder traversal (NLR)
+void preorder(Node* root) {
+    if (root == nullptr) return;
+    cout << root->info << " ";
+    preorder(root->left);
+    preorder(root->right);
+}
+
+// Postorder traversal (LRN)
+void postorder(Node* root) {
+    if (root == nullptr) return;
+    postorder(root->left);
+    postorder(root->right);
+    cout << root->info << " ";
+}
+
+// Find minimum value node (used for deletion case III)
+Node* minValueNode(Node* node) {
+    Node* current = node;
+    while (current && current->left != nullptr) {
+        current = current->left;
+    }
+    return current;
+}
+
+// Delete a node
+Node* deleteNode(Node* root, int key) {
+    if (root == nullptr) return root;
+
+    if (key < root->info) {
+        root->left = deleteNode(root->left, key);
+    } else if (key > root->info) {
+        root->right = deleteNode(root->right, key);
+    } else {
+        // Case I: Leaf node
+        if (root->left == nullptr && root->right == nullptr) {
+            cout << "Deleting leaf node: " << root->info << endl;
+            delete root;
+            return nullptr;
+        }
+        // Case II: One child
+        else if (root->left == nullptr) {
+            cout << "Deleting node with one child: " << root->info << endl;
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        } else if (root->right == nullptr) {
+            cout << "Deleting node with one child: " << root->info << endl;
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        }
+        // Case III: Two children
+        else {
+            cout << "Deleting node with two children: " << root->info << endl;
+            Node* temp = minValueNode(root->right);
+            root->info = temp->info; // Copy inorder successor
+            root->right = deleteNode(root->right, temp->info);
+        }
+    }
+    return root;
+}
+
+int main() {
+    Node* root = nullptr;
+    int n, val;
+
+    cout << "Enter number of nodes to insert: ";
+    cin >> n;
+
+    cout << "Enter " << n << " values:\n";
+    for (int i = 0; i < n; i++) {
+        cin >> val;
+        root = insert(root, val);
+    }
+
+    cout << "\nPreorder Traversal: ";
+    preorder(root);
+    cout << "\nInorder Traversal: ";
+    inorder(root);
+    cout << "\nPostorder Traversal: ";
+    postorder(root);
+    cout << endl;
+
+    // Demonstrating all delete cases
+    cout << "\nEnter a node to delete (leaf case): ";
+    cin >> val;
+    root = deleteNode(root, val);
+
+    cout << "\nInorder after deletion: ";
+    inorder(root);
+    cout << endl;
+
+    cout << "\nEnter a node to delete (one child case): ";
+    cin >> val;
+    root = deleteNode(root, val);
+
+    cout << "\nInorder after deletion: ";
+    inorder(root);
+    cout << endl;
+
+    cout << "\nEnter a node to delete (two children case): ";
+    cin >> val;
+    root = deleteNode(root, val);
+
+    cout << "\nInorder after deletion: ";
+    inorder(root);
+    cout << endl;
+
+    return 0;
+}
+```
+
+---
+
+### 🔹 Explanation of Deletion Cases
+
+* **Case I (Leaf node):** Node has no children → simply delete.
+* **Case II (One child):** Replace node with its only child.
+* **Case III (Two children):** Replace node with **inorder successor** (smallest value in right subtree), then delete that successor.
+
+---
+
+### 🔹 Example Run
+
+```
+Enter number of nodes to insert: 7
+Enter 7 values:
+50 30 70 20 40 60 80
+
+Preorder Traversal: 50 30 20 40 70 60 80 
+Inorder Traversal: 20 30 40 50 60 70 80 
+Postorder Traversal: 20 40 30 60 80 70 50 
+
+Enter a node to delete (leaf case): 20
+Deleting leaf node: 20
+Inorder after deletion: 30 40 50 60 70 80 
+
+Enter a node to delete (one child case): 30
+Deleting node with one child: 30
+Inorder after deletion: 40 50 60 70 80 
+
+Enter a node to delete (two children case): 50
+Deleting node with two children: 50
+Inorder after deletion: 40 60 70 80 
+```
+
+---
+
