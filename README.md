@@ -538,3 +538,180 @@ Inorder after deletion: 40 60 70 80
 
 ---
 
+
+**linked list operations**. 
+
+* Insert at **beginning**
+* Insert at **end**
+* Insert at **position (middle)**
+* Delete **first node**
+* Delete **last node**
+* Delete at **position (intermediate)**
+
+And a display function to verify changes.
+
+---
+
+### 🔹 C++ Code: Linked List Insertions & Deletions
+
+```cpp
+#include <iostream>
+using namespace std;
+
+// Linked List Node
+struct Node {
+    int data;
+    Node* next;
+    Node(int val) {
+        data = val;
+        next = nullptr;
+    }
+};
+
+// Insert at beginning
+void insert_begin(Node*& head, int value) {
+    Node* newNode = new Node(value);
+    newNode->next = head;
+    head = newNode;
+}
+
+// Insert at end
+void insert_end(Node*& head, int value) {
+    Node* newNode = new Node(value);
+    if (head == nullptr) {
+        head = newNode;
+        return;
+    }
+    Node* cur = head;
+    while (cur->next != nullptr) {
+        cur = cur->next;
+    }
+    cur->next = newNode;
+}
+
+// Insert at a specific position (0-based index)
+void insert_middle(Node*& head, int position, int value) {
+    if (position == 0) { // same as insert at beginning
+        insert_begin(head, value);
+        return;
+    }
+
+    Node* newNode = new Node(value);
+    Node* cur = head;
+    for (int i = 1; i < position; i++) {
+        if (cur == nullptr) {
+            cout << "Error: Position out of range\n";
+            delete newNode;
+            return;
+        }
+        cur = cur->next;
+    }
+    newNode->next = cur->next;
+    cur->next = newNode;
+}
+
+// Delete first node
+void delete_first_node(Node*& head) {
+    if (head == nullptr) {
+        cout << "List is empty\n";
+        return;
+    }
+    Node* temp = head;
+    head = head->next;
+    delete temp;
+}
+
+// Delete last node
+void delete_last_node(Node*& head) {
+    if (head == nullptr) {
+        cout << "List is empty\n";
+        return;
+    }
+    if (head->next == nullptr) { // only one node
+        delete head;
+        head = nullptr;
+        return;
+    }
+    Node* cur = head;
+    Node* prev = nullptr;
+    while (cur->next != nullptr) {
+        prev = cur;
+        cur = cur->next;
+    }
+    prev->next = nullptr;
+    delete cur;
+}
+
+// Delete node at given index (0-based)
+void delete_intermediate_node(Node*& head, int index) {
+    if (head == nullptr) {
+        cout << "List is empty\n";
+        return;
+    }
+    if (index == 0) { // same as deleting first
+        delete_first_node(head);
+        return;
+    }
+    Node* cur = head;
+    Node* prev = nullptr;
+    int id = 0;
+    while (cur != nullptr && id != index) {
+        prev = cur;
+        cur = cur->next;
+        id++;
+    }
+    if (cur == nullptr) {
+        cout << "Error: Index out of range\n";
+        return;
+    }
+    prev->next = cur->next;
+    delete cur;
+}
+
+// Display linked list
+void display(Node* head) {
+    cout << "List: ";
+    while (head != nullptr) {
+        cout << head->data << " -> ";
+        head = head->next;
+    }
+    cout << "NULL\n";
+}
+
+int main() {
+    Node* head = nullptr;
+
+    // Insert some nodes
+    insert_begin(head, 10);
+    insert_end(head, 20);
+    insert_end(head, 30);
+    insert_middle(head, 1, 15); // insert 15 at position 1
+    display(head);
+
+    // Delete operations
+    delete_first_node(head);
+    display(head);
+
+    delete_last_node(head);
+    display(head);
+
+    delete_intermediate_node(head, 1); // delete node at index 1
+    display(head);
+
+    return 0;
+}
+```
+
+---
+
+### 🔹 Example Execution
+
+```
+List: 10 -> 15 -> 20 -> 30 -> NULL
+List: 15 -> 20 -> 30 -> NULL
+List: 15 -> 20 -> NULL
+List: 15 -> NULL
+```
+
+---
+
